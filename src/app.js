@@ -41,18 +41,15 @@ app.post('/signup', async (req, res)=>{
 
     if (error){
         console.log(error.details);
-        res.sendStatus(401);
-        return;
+        return res.sendStatus(401);
+    }
+
+    const emailExist = await db.collection("users").findOne({email});
+    if (emailExist){
+        return res.status(409).send("E-mail já cadastrado");
     }
 
     try{
-        const emailExist = await db.collection("users").findOne({email});
-
-        if (emailExist){
-            res.status(409).send("E-mail já cadastrado");
-            return;
-        }
-
         const cryptoPassword = bcrypt.hashSync(password, 10);
 
         await db.collection("users").insertOne({
@@ -62,11 +59,10 @@ app.post('/signup', async (req, res)=>{
 
     }catch(e){
         console.log(e);
-        res.status(500).send("Não foi possível salvar os dados do usuário no banco de dados.");
-        return;
+        return res.status(500).send("Não foi possível salvar os dados do usuário no banco de dados.");
     }
 
-    res.sendStatus(201);
+    res.status(201).send("Conta criada com sucesso!");
 })
 
 app.post('/signin', async (req, res)=>{
@@ -80,18 +76,17 @@ app.post('/signin', async (req, res)=>{
 
            await db.collection("sessions").insertOne({
                userId: user._id,
+               date: Date.now(),
                token
            });
 
            return res.send(token);
        } else {
-           res.status(403).send("Login e/ou senha incorreto(s).");
-           return;
+           return res.status(403).send("Login e/ou senha incorreto(s).");
        }
     }catch(e){
         console.log(e);
-        res.sendStatus(401);
-        return;
+        return res.status(500).send("Erro ao tentar se comunicar com o banco de dados!");
     }
 })
  

@@ -29,7 +29,7 @@ const userSchema = joi.object({
 
 const registrySchema = joi.object({
     value: joi.number().required(),
-    description: joi.string().required()
+    description: joi.string().required().min(1).max(40)
 })
 
 app.post('/signup', async (req, res)=>{
@@ -107,13 +107,12 @@ app.post('/in', async (req, res)=>{
       res.sendStatus(401);
   }
 
-
     const registry = req.body;
     const {error} = registrySchema.validate(registry);
 
     if (error){
         console.log(error.details);
-        return res.sendStatus(400);
+        return res.status(400).send(error.details);
     }
 
     await db.collection("registries").insertOne({
@@ -149,7 +148,7 @@ app.post('/out', async (req, res)=>{
 
     if (error){
         console.log(error.details);
-        return res.sendStatus(400);
+        return res.status(400).send(error.details);
     }
 
     await db.collection("registries").insertOne({

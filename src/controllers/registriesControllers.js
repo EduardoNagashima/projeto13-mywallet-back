@@ -9,22 +9,9 @@ const registrySchema = joi.object({
 });
 
 export async function input(req, res){
-        
-  //VALIDAÇÃO DO TOKEN, SESSION E USER
-  const {authorization} = req.headers;
-  const token = authorization?.replace('Bearer ', "");
-  if(!token) return res.sendStatus(401);
-  const session = await db.collection("sessions").findOne({token});
-  if (!session){
-      return res.sendStatus(401);
-  }
-  const user = await db.collection("users").findOne({
-      _id: session.userId
-  })
-  if (!user){
-      res.sendStatus(401);
-  }
 
+    const {user} = res.locals;
+    
     const registry = req.body;
     const {error} = registrySchema.validate(registry);
 
@@ -45,21 +32,7 @@ export async function input(req, res){
 
 export async function output(req, res){
 
-  //VALIDAÇÃO DO TOKEN, SESSION E USER
-  const {authorization} = req.headers;
-  const token = authorization?.replace('Bearer ', "");
-  if(!token) return res.sendStatus(401);
-  const session = await db.collection("sessions").findOne({token});
-  if (!session){
-      return res.sendStatus(401);
-  }
-  const user = await db.collection("users").findOne({
-      _id: session.userId
-  })
-  if (!user){
-      res.sendStatus(401);
-  }
-
+    const {user} = res.locals;
 
     const registry = req.body;
     const {error} = registrySchema.validate(registry);
@@ -80,21 +53,8 @@ export async function output(req, res){
 }
 
 export async function registry(req, res){
-    
-    //VALIDAÇÃO DO TOKEN, SESSION E USER
-    const {authorization} = req.headers;
-    const token = authorization?.replace('Bearer ', "");
-    if(!token) return res.sendStatus(401);
-    const session = await db.collection("sessions").findOne({token});
-    if (!session){
-        return res.sendStatus(401);
-    }
-    const user = await db.collection("users").findOne({
-        _id: session.userId
-    })
-    if (!user){
-        res.sendStatus(401);
-    }
+
+    const {user} = res.locals;
 
     try{
         const registries = await db.collection("registries").find({
